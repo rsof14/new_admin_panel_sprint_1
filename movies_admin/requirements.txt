@@ -3,5 +3,7 @@ flake8==3.9
 pytest==6.2.5
 pre-commit==2.15.0
 wemake-python-styleguide==0.15.3
-flake8-bandit==2.1.2 
+flake8-bandit==2.1.2
 bandit==1.7.2
+python-dotenv==1.0.0
+django-split-settings==1.2.0
