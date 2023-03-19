@@ -1,11 +1,14 @@
 import pytest
 import psycopg2
 import sqlite3
+import os
+from movies_admin.config import settings
 from contextlib import contextmanager
 from psycopg2.extras import DictCursor
 
-db_path = 'db.sqlite'
-dsl = {'dbname': 'movies_database', 'user': 'app', 'password': '123qwe', 'host': '127.0.0.1', 'port': 5432}
+db_path = '../sqlite_to_postgres/db.sqlite'
+dsl = {'dbname': os.environ.get('DB_NAME'), 'user': os.environ.get('DB_USER'),
+       'password': os.environ.get('DB_PASSWORD'), 'host': '127.0.0.1', 'port': 5432}
 pg_conn = psycopg2.connect(**dsl, cursor_factory=DictCursor)
 pg_cursor = pg_conn.cursor()
 sqlite_conn = sqlite3.connect(db_path)

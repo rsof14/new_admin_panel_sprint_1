@@ -1,3 +1,4 @@
+import os
 import datetime
 import sqlite3
 from contextlib import contextmanager
@@ -6,18 +7,7 @@ from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
 import uuid
 from dataclasses import dataclass, field
-
-import os
-from split_settings.tools import include
-from dotenv import load_dotenv
-from movies_admin.config.components import database
 from movies_admin.config import settings
-
-load_dotenv()
-
-include(
-    '../movies_admin/config/components/database.py',
-)
 
 db_path = 'db.sqlite'
 
@@ -193,6 +183,7 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
 
 
 if __name__ == '__main__':
-    dsl = {'dbname': 'movies_database', 'user': 'app', 'password': '123qwe', 'host': '127.0.0.1', 'port': 5432}
+    dsl = {'dbname': os.environ.get('DB_NAME'), 'user': os.environ.get('DB_USER'),
+           'password': os.environ.get('DB_PASSWORD'), 'host': '127.0.0.1', 'port': 5432}
     with sqlite3.connect(db_path) as sqlite_conn, psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
         load_from_sqlite(sqlite_conn, pg_conn)

@@ -9,7 +9,6 @@ class TimeStampedMixin(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # Этот параметр указывает Django, что этот класс не является представлением таблицы
         abstract = True
 
 
@@ -91,7 +90,6 @@ class GenreFilmwork(UUIDMixin):
         db_table = "content\".\"genre_film_work"
         verbose_name = _('Genre in filmwork')
         verbose_name_plural = _('Genres in filmwork')
-
 
 
 class PersonFilmwork(UUIDMixin):
