@@ -27,9 +27,7 @@ class Genre(UUIDMixin, TimeStampedMixin):
         return self.name
 
     class Meta:
-        # Ваши таблицы находятся в нестандартной схеме. Это нужно указать в классе модели
         db_table = "content\".\"genre"
-        # Следующие два поля отвечают за название модели в интерфейсе
         verbose_name = _('Genre')
         verbose_name_plural = _('Genres')
 
@@ -41,15 +39,13 @@ class Gender(models.TextChoices):
 
 class Person(UUIDMixin, TimeStampedMixin):
     full_name = models.CharField(_('full_name'), max_length=255)
-    gender = models.TextField(_('gender'), choices=Gender.choices, null=True)
+    gender = models.TextField(_('gender'), choices=Gender.choices)
 
     def __str__(self):
         return self.full_name
 
     class Meta:
-        # Ваши таблицы находятся в нестандартной схеме. Это нужно указать в классе модели
         db_table = "content\".\"person"
-        # Следующие два поля отвечают за название модели в интерфейсе
         verbose_name = _('Person')
         verbose_name_plural = _('Persons')
 
@@ -65,15 +61,16 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
     genres = models.ManyToManyField(Genre, through='GenreFilmwork')
     persons = models.ManyToManyField(Person, through='PersonFilmwork')
     certificate = models.CharField(_('certificate'), max_length=512, blank=True)
-    file_path = models.FileField(_('file'), blank=True, null=True, upload_to='movies/')
+    file_path = models.FileField(_('file'), blank=True, upload_to='movies/')
 
     def __str__(self):
         return self.title
 
     class Meta:
-        # Ваши таблицы находятся в нестандартной схеме. Это нужно указать в классе модели
+        indexes = [
+            models.Index(fields=['title', 'type', 'creation_date'])
+        ]
         db_table = "content\".\"film_work"
-        # Следующие два поля отвечают за название модели в интерфейсе
         verbose_name = _('Filmwork')
         verbose_name_plural = _('Filmworks')
 
@@ -87,21 +84,33 @@ class GenreFilmwork(UUIDMixin):
         return str(_("genre"))
 
     class Meta:
+        indexes = [
+            models.Index(fields=['film_work_id', 'genre_id'])
+        ]
         db_table = "content\".\"genre_film_work"
         verbose_name = _('Genre in filmwork')
         verbose_name_plural = _('Genres in filmwork')
 
 
+class Role(models.TextChoices):
+    ACTOR = 'actor', _('actor')
+    DIRECTOR = 'director', _('director')
+    WRITER = 'writer', _('writer')
+
+
 class PersonFilmwork(UUIDMixin):
     film_work = models.ForeignKey('Filmwork', on_delete=models.CASCADE)
     person = models.ForeignKey('Person', on_delete=models.CASCADE)
-    role = models.TextField(_('role'), null=True)
+    role = models.TextField(_('role'), choices=Role.choices)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(_("person"))
 
     class Meta:
+        indexes = [
+            models.Index(fields=['film_work_id', 'person_id'])
+        ]
         db_table = "content\".\"person_film_work"
         verbose_name = _('Person in filmwork')
         verbose_name_plural = _('Persons in filmwork')
