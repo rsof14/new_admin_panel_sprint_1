@@ -86,7 +86,6 @@ class PostgresSaver:
 
     def save_to_postgres(self, data, table):
         args = [astuple(i) for i in data]
-        print(args)
         sql_insert = (
             f"""INSERT INTO {SCHEMA}.{dataclasses_to_tables(table.__name__)} 
             ({', '.join(list(table.__annotations__.keys()))}) VALUES %s ON CONFLICT (id) DO NOTHING; """)
@@ -109,27 +108,25 @@ class SQLiteExtractor:
         yield conn
         conn.close()
 
-    def extract_movies(self, table):
+    def extract_movies(self, table, postgres_saver):
         with self.conn_context(db_path) as conn:
             curs = conn.cursor()
             curs.execute(f"SELECT * FROM '{dataclasses_to_tables(table.__name__)}';")
             while True:
                 rows = curs.fetchmany(self.rows_amount)
                 if rows:
-                    for i in rows:
-                        yield table(*i)
+                    postgres_saver.save_all_data([table(*i) for i in rows], table)
                 else:
                     break
 
 
 def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
     """Основной метод загрузки данных из SQLite в Postgres"""
-    postgres_saver = PostgresSaver(pg_conn)
     sqlite_extractor = SQLiteExtractor(connection)
+    postgres_saver = PostgresSaver(pg_conn)
 
     for table in TABLES:
-        data = sqlite_extractor.extract_movies(table)
-        postgres_saver.save_all_data(data, table)
+        sqlite_extractor.extract_movies(table, postgres_saver)
 
 
 if __name__ == '__main__':
