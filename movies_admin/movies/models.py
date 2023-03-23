@@ -67,7 +67,7 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
         return self.title
 
     class Meta:
-        indexes = [
+        constraints = [
             models.UniqueConstraint(fields=['title', 'type', 'creation_date'], name='film_work_idx')
         ]
         db_table = "content\".\"film_work"
@@ -84,7 +84,7 @@ class GenreFilmwork(UUIDMixin):
         return str(_("genre"))
 
     class Meta:
-        indexes = [
+        constraints = [
             models.UniqueConstraint(fields=['film_work_id', 'genre_id'], name='film_work_genre_idx')
         ]
         db_table = "content\".\"genre_film_work"
@@ -108,7 +108,7 @@ class PersonFilmwork(UUIDMixin):
         return str(_("person"))
 
     class Meta:
-        indexes = [
+        constraints = [
             models.UniqueConstraint(fields=['film_work_id', 'person_id'], name='film_work_person_idx')
         ]
         db_table = "content\".\"person_film_work"
